@@ -25,6 +25,10 @@ public class User {
     @NotBlank(message = "Phone number is required")
     @Column(nullable = false)
     private String phone;
+    
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    private String password;
 
     @NotBlank(message = "PAN is required")
     @Size(min = 4, max = 10)
@@ -82,6 +86,14 @@ public class User {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getPan() {

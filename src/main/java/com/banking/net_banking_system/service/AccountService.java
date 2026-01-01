@@ -1,6 +1,7 @@
 package com.banking.net_banking_system.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,24 +17,27 @@ public class AccountService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional
     public User registerNewUser(User user, String accountType) {
-        // 1. Generate unique 12-digit account number
-        String accountNumber = generateAccountNumber();
+    	// 1. HASH THE PASSWORD before saving
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
 
         // 2. Set the User's account type
         user.setAccountType(accountType.toUpperCase()); 
 
-        // 3. Create the Account entity
+        // 3. Generate account details
+        String accountNumber = generateAccountNumber();
         AccountDetails account = new AccountDetails();
         account.setAccountNumber(accountNumber);
         account.setAccountType(accountType.toUpperCase());
         account.setBalance(BigDecimal.ZERO);
-        account.setStatus("PENDING");
+        account.setStatus("ACTIVE");
         account.setUser(user);
 
-        // 4. Link and Save
         user.setAccountDetails(account); 
         return userRepository.save(user);
     }

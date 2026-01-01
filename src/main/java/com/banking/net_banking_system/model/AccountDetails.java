@@ -22,7 +22,7 @@ public class AccountDetails {
     private BigDecimal balance;
 
     @Column(nullable = false)
-    private String status; // PENDING, ACTIVE, or BLOCKED
+    private String status; // ACTIVE or BLOCKED
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -34,7 +34,7 @@ public class AccountDetails {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        if (this.status == null) this.status = "PENDING";
+        if (this.status == null) this.status = "ACTIVE";
         if (this.balance == null) this.balance = BigDecimal.ZERO;
     }
 
