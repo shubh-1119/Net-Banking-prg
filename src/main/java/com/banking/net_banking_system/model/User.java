@@ -4,6 +4,10 @@ package com.banking.net_banking_system.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "users")
@@ -26,6 +30,7 @@ public class User {
     @Column(nullable = false)
     private String phone;
     
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
@@ -50,6 +55,10 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private AccountDetails accountDetails;
+    
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<LoanDetails> loans;
 
     @PrePersist
     protected void onCreate() {

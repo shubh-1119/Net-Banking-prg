@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "account_details")
 public class AccountDetails {
@@ -27,6 +29,7 @@ public class AccountDetails {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "userId")
     private User user;
@@ -36,6 +39,11 @@ public class AccountDetails {
         this.createdAt = LocalDateTime.now();
         if (this.status == null) this.status = "ACTIVE";
         if (this.balance == null) this.balance = BigDecimal.ZERO;
+    }
+    
+    public void creditBalance(BigDecimal amount) {
+        if (this.balance == null) this.balance = BigDecimal.ZERO;
+        this.balance = this.balance.add(amount);
     }
 
 	public Long getId() {

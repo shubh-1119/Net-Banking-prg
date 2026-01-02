@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "LoanDetails")
 public class LoanDetails {
@@ -15,11 +17,42 @@ public class LoanDetails {
     private Long loanId;
 
     private String loanType;
+    
+    @Column(precision = 38, scale = 2)
     private BigDecimal loanAmount;
+
+    @Column(precision = 38, scale = 2)
+    private BigDecimal monthlyEmiAmount;
+
+    @Column(precision = 38, scale = 2)
+    private BigDecimal totalRepaymentAmount;
+
+    @Column(precision = 38, scale = 2)
+    private BigDecimal totalAmountPaid = BigDecimal.ZERO;
+
+    @Column(precision = 38, scale = 2)
+    private BigDecimal totalAmountRemaining;
+    
     private Integer tenureMonths;
+    
+    @Column(precision = 38, scale = 2)
+    private BigDecimal annualIncome;
     private BigDecimal monthlyIncome;
-    private Integer creditScore;
+
+    public BigDecimal getMonthlyIncome() {
+		return monthlyIncome;
+	}
+
+	public void setMonthlyIncome(BigDecimal monthlyIncome) {
+		this.monthlyIncome = monthlyIncome;
+	}
+
+	@Column(precision = 38, scale = 2)
     private BigDecimal ongoingDebt;
+
+    private Double interestRate = 12.0;
+    
+    private Integer creditScore;
     private LocalDate startDate;
     private LocalDate endDate;
     
@@ -31,6 +64,7 @@ public class LoanDetails {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"accountDetails", "loans", "password"})
     private User user;
 
     @PrePersist
@@ -70,12 +104,12 @@ public class LoanDetails {
 		this.tenureMonths = tenureMonths;
 	}
 
-	public BigDecimal getMonthlyIncome() {
-		return monthlyIncome;
+	public BigDecimal getAnnualIncome() {
+		return annualIncome;
 	}
 
-	public void setMonthlyIncome(BigDecimal monthlyIncome) {
-		this.monthlyIncome = monthlyIncome;
+	public void setAnnualIncome(BigDecimal annualIncome) {
+		this.annualIncome = annualIncome;
 	}
 
 	public Integer getCreditScore() {
@@ -132,6 +166,46 @@ public class LoanDetails {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public BigDecimal getMonthlyEmiAmount() {
+		return monthlyEmiAmount;
+	}
+
+	public void setMonthlyEmiAmount(BigDecimal monthlyEmiAmount) {
+		this.monthlyEmiAmount = monthlyEmiAmount;
+	}
+
+	public BigDecimal getTotalRepaymentAmount() {
+		return totalRepaymentAmount;
+	}
+
+	public void setTotalRepaymentAmount(BigDecimal totalRepaymentAmount) {
+		this.totalRepaymentAmount = totalRepaymentAmount;
+	}
+
+	public BigDecimal getTotalAmountPaid() {
+		return totalAmountPaid;
+	}
+
+	public void setTotalAmountPaid(BigDecimal totalAmountPaid) {
+		this.totalAmountPaid = totalAmountPaid;
+	}
+
+	public BigDecimal getTotalAmountRemaining() {
+		return totalAmountRemaining;
+	}
+
+	public void setTotalAmountRemaining(BigDecimal totalAmountRemaining) {
+		this.totalAmountRemaining = totalAmountRemaining;
+	}
+
+	public Double getInterestRate() {
+		return interestRate;
+	}
+
+	public void setInterestRate(Double interestRate) {
+		this.interestRate = interestRate;
 	}
 	
 }
