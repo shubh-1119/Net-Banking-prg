@@ -22,6 +22,12 @@ public class AccountService {
 
     @Transactional
     public User registerNewUser(User user, String accountType) {
+    	
+    	if (userRepository.existsByEmail(user.getEmail())) throw new RuntimeException("EXISTS_EMAIL");
+        if (userRepository.existsByPhone(user.getPhone())) throw new RuntimeException("EXISTS_PHONE");
+        if (userRepository.existsByPan(user.getPan())) throw new RuntimeException("EXISTS_PAN");
+        if (userRepository.existsByAadhar(user.getAadhar())) throw new RuntimeException("EXISTS_AADHAR");
+        
     	if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new RuntimeException("Password field is missing in request body.");
         }
