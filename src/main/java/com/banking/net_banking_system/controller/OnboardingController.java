@@ -1,10 +1,12 @@
 package com.banking.net_banking_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.banking.net_banking_system.model.User;
+import com.banking.net_banking_system.repository.UserRepository;
 import com.banking.net_banking_system.service.AccountService;
 
 @Controller
@@ -12,10 +14,31 @@ public class OnboardingController {
 
     @Autowired
     private AccountService accountService;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/")
     public String showLandingPage() {
         return "index";
+    }
+    
+    @GetMapping("/login")
+    public String showLoginPage() {
+        return "login";
+    }
+    
+    @GetMapping("/home")
+    public String showHomePage(org.springframework.ui.Model model) {
+        // Get the User ID from the SecurityContext (set by JwtAuthFilter)
+        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        User user = userRepository.findById(Long.parseLong(userId))
+                                   .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Pass the user object to the JSP
+        model.addAttribute("user", user);
+        return "home";
     }
 
     @PostMapping("/api/onboarding/register")

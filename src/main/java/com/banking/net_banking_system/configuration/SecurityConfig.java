@@ -29,8 +29,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Add this!
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/", "/api/onboarding/**", "/api/auth/**","/login", "/WEB-INF/jsp/**").permitAll() // Allow these endpoints
-                        .requestMatchers("/api/transaction/deposit", "/api/transaction/withdraw").authenticated()
+                        .requestMatchers("/", "/api/onboarding/**", "/api/auth/**","/login/**", "/WEB-INF/jsp/**").permitAll() // Allow these endpoints
+                        .requestMatchers("/api/transaction/deposit", "/api/transaction/withdraw", "/home").authenticated()
                         .anyRequest().authenticated()
                 ).formLogin(login -> login.disable())
                 .httpBasic(basic -> basic.disable())

@@ -1,7 +1,6 @@
 package com.banking.net_banking_system.configuration;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
@@ -12,92 +11,71 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
 
-@Controller
+
+@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
-
 
     @Value("${app.jwt.secret}")
     private String secretKey;
 
-    private String accessToken;
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String accessToken = null;
 
         Cookie[] cookies = request.getCookies();
-        System.out.println("This is cookies" + Arrays.toString(cookies));
-
-
         if (cookies != null) {
-        System.out.println(cookies[0].getName());
-
-        for (Cookie cookie : cookies) {
-            if (Objects.equals(cookie.getName(), "accessToken")) {
-                System.out.println("I reached here");
-                accessToken = cookie.getValue();
-                break;
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    accessToken = cookie.getValue();
+                    break;
+                }
             }
-
         }
 
-//        System.out.println("Access token" + accessToken);
-        }
-        if (accessToken != null) {
-
-            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-
+        if (accessToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                Jws<Claims> jws = Jwts.parser().verifyWith(key) // Modern replacement for setSigningKey()
-                        .build().parseSignedClaims(cookies[0].getValue()); // Returns a Jws object containing payload & header
+                SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
-                Claims claims = jws.getPayload();
+                Claims claims = Jwts.parser()
+                        .verifyWith(key)
+                        .build()
+                        .parseSignedClaims(accessToken)
+                        .getPayload();
 
                 String userId = claims.getSubject();
-                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+                if (userId != null) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
 
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-
-
-                    WebAuthenticationDetails details = (WebAuthenticationDetails) authToken.getDetails();
-
-                    String ipAddress = details.getRemoteAddress();
-//                    String sessionId = details.getSessionId();
-
-
-//                    System.out.println("User IP Address: " + ipAddress);
-//                    System.out.println("User authenticated: " + userId);
-
-                    filterChain.doFilter(request, response);
                 }
 
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
-
-            System.out.println("I am inside cookie if statment");
-            return;
-
-
         }
 
         filterChain.doFilter(request, response);
-
     }
 }
+
 
