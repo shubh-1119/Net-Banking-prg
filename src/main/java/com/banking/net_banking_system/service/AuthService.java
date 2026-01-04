@@ -55,7 +55,7 @@ public class AuthService {
                 .signWith(key)
                 .compact();
 
-        Cookie cookie = new Cookie("AccessToken", accessToken);
+        Cookie cookie = new Cookie("accessToken", accessToken);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
 
